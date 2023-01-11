@@ -68,14 +68,12 @@ public class CommandExecuter {
 		
 		Bag outBag = (Bag)method.invoke(clsObj, paramBag);
 		
-		// TODO : 	the line below throws InvocationException due to internal use of toString()
-		// 			method. investigate it later.
 		System.out.println(outBag);
 		
 		return outBag;
 	}
 	
-	public void Execute(String commandName, Bag paramBag) throws Exception {
+	public Bag Execute(String commandName, Bag paramBag) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		MethodTblRepository methodTblRepository = new MethodTblRepository();
 		MethodTbl methodTbl = methodTblRepository.getByCommandName(commandName);
@@ -90,8 +88,11 @@ public class CommandExecuter {
 		
 		Method method = ReflectionHelper.getMethod(cls, methodTbl.getName());
 		
-		Object rv = method.invoke(clsObj, paramBag);
+		Bag outBag = (Bag)method.invoke(clsObj, paramBag);
 		
-		System.out.println(rv);
+
+		System.out.println(outBag);
+		
+		return outBag;
 	}
 }

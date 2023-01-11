@@ -1,9 +1,15 @@
 package com.payci.soner;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.payci.soner.entities.Account;
 import com.payci.soner.entities.Address;
 import com.payci.soner.entities.Customer;
@@ -13,6 +19,10 @@ import com.payci.soner.entities.reflection.MethodTbl;
 import com.payci.soner.helpers.ReflectionHelper;
 import com.payci.soner.hibernate.ClassTblRepository;
 import com.payci.soner.hibernate.CustomerRepository;
+import com.payci.soner.models.IO.CommandDefinition;
+import com.payci.soner.models.IO.CommandInput;
+import com.payci.soner.models.IO.CommandOutput;
+import com.payci.soner.models.IO.base.SingleInput;
 
 public class Main {
 	static boolean run = true;
@@ -20,18 +30,80 @@ public class Main {
 	
 	public static void main(String[] args) {
 		//initializeEntities();
-		initializeCommands("com.payci.soner.operations", "CustomerOperations");
-		initializeCommands("com.payci.soner.operations", "AddressOperations");
-		initializeCommands("com.payci.soner.operations", "AccountOperations");
-		initializeCommands("com.payci.soner.operations", "PhoneOperations");
+//		initializeCommands("com.payci.soner.operations", "CustomerOperations");
+//		initializeCommands("com.payci.soner.operations", "AddressOperations");
+//		initializeCommands("com.payci.soner.operations", "AccountOperations");
+//		initializeCommands("com.payci.soner.operations", "PhoneOperations");
 		
-		try (Scanner scanner = new Scanner(System.in)) {
-			System.out.print("Enter CommandName: ");  
-			String commandName = scanner.nextLine();
-			commandExecuter.Execute(commandName);
+		try /*(Scanner scanner = new Scanner(System.in))*/ {
+//			
+//			System.out.print("Enter CommandName: ");  
+//			String commandName = scanner.nextLine();
+//			commandExecuter.Execute(commandName);
+			
+			JacksonXmlModule xmlModule = new JacksonXmlModule();
+			xmlModule.setDefaultUseWrapper(false);
+			ObjectMapper objectMapper = new XmlMapper(xmlModule);
+			
+			objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+			
+			//String cmdStr = "<EXT><Input><p n=\"AD\">Soner</p><p n=\"SOYAD\">PAYCI</p><p n=\"YAS\">27</p></Input><Output><p n=\"DOGUM_TARIHI\"/></Output></EXT>";
+			
+			//CommandDefinition cmd = objectMapper.readValue(cmdStr, CommandDefinition.class);
+			
+			//System.out.println(cmd.getCommandName());
+			
+			
+			
+			
+			
+
+			
+			
+			
+			
+			CommandDefinition cmd = getTestCommandDefinition();
+			String xml = objectMapper.writeValueAsString(cmd);
+			
+			
+			System.out.println(xml);
+			
+			
+			
+			
+			
 		} catch (Exception e) {
-			System.out.println("\nException occured. Try Again."); 
+			
+			System.out.println("\nException occured. Try Again.");
+			e.printStackTrace();
 		}
+	}
+	
+	private static CommandDefinition getTestCommandDefinition() {
+		CommandDefinition cmd = new CommandDefinition();
+		
+		CommandInput input = new CommandInput();
+		CommandOutput output = new CommandOutput();
+		
+		List<SingleInput> inputPairs = new ArrayList<SingleInput>();
+		List<SingleInput> outputPairs = new ArrayList<SingleInput>();
+		
+		inputPairs.add(new SingleInput("AD", "Soner"));
+		inputPairs.add(new SingleInput("SOYAD", "PAYCI"));
+		inputPairs.add(new SingleInput("YAS", 27));
+		
+		
+		outputPairs.add(new SingleInput("DOGUM_YILI", 1995));
+		
+		input.setKeyValuePairs(inputPairs);
+		
+		output.setKeyValuePairs(outputPairs);
+		
+		cmd.setCommandName("test_command");
+		cmd.setInput(input);
+		cmd.setOutput(output);
+		
+		return cmd;
 	}
 	
 	private static void initializeCommands(String packagePath, String className) {
